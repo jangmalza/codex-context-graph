@@ -88,6 +88,33 @@ python .\context_graph.py analyze `
 
 Progress output prints `chunk 1/N`, `chunk 2/N`, and so on. A 184,408-character transcript will generally require at least four chunks depending on message boundaries. The run still requires user opt-in to send the conversation to the configured Codex model.
 
+## Validation recovery and retry cache
+
+The Conversation Map validator checks actual quoted evidence, including the speaker. If the Codex model incorrectly classifies a user quote as `assistant_statement`, the tool now reads the validator's **structured diagnostics**, corrects only reported `attribution-mismatch` classifications (including mixed-speaker `unknown`), and re-runs the full validator. Other errors still stop the import. It does not use `--best-effort` to ignore validation failures.
+
+Each successfully generated **model draft** is also cached locally before validation. On failure or interruption after generating a chunk, unchanged chunks can be reused without additional Codex model calls. Every cached draft is still checked against the full source transcript before being saved as a final map.
+
+- Default cache location: `$HOME\.codex-context-graph\analysis-cache\<hashed-session-id>\`
+- With `--db .\local-data\test.db`, the cache is under `.\local-data\analysis-cache\`.
+- Cached files contain **raw conversation quotes** and must be treated as sensitive data; they are ignored by Git. Do not share or commit them.
+- `--force` bypasses both successful-run and draft cache skipping, requesting fresh model analysis.
+- Cache keys account for the transcript chunk and current analysis schema; changed chunks are re-analyzed.
+- A previously failed run on an **older version** had no persistent draft cache, so its first retry after upgrading must call Codex for all chunks once more.
+
+```powershell
+git fetch origin
+git switch feat/context-graph-mvp
+git pull --ff-only origin feat/context-graph-mvp
+python -m unittest discover -s tests -v
+
+python -X utf8 .\context_graph.py analyze `
+  --session "YOUR-SESSION-ID" `
+  --cm-root "$HOME\src\conversation-map" `
+  --allow-model
+```
+
+Note: Repeated validation failure may indicate other issues (unsupported quote, invalid relationship, changed source) that should **not** be auto-suppressed. In that case, report the newly displayed error codes.
+
 ## Continuous collection
 
 ```powershell
