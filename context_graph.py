@@ -634,7 +634,7 @@ def auto_analyze(con: sqlite3.Connection, sid: str, root: Path, out: Path, force
             cmd = ['codex', 'exec', '--ephemeral', '--sandbox', 'read-only', '--skip-git-repo-check',
                    '--output-schema', str(schema.resolve()), '-o', str(draft_path), '-']
             cp = subprocess.run(cmd, input=prompt, text=True, cwd=tmpdir, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, timeout=600)
+                                stderr=subprocess.PIPE, encoding="utf-8", errors="replace", timeout=600)
             if cp.returncode != 0 or not draft_path.is_file():
                 raise RuntimeError(f'chunk {i}/{len(chunks)}: codex exec failed (exit {cp.returncode}): {cp.stderr[-1000:]}')
             try:
@@ -649,12 +649,12 @@ def auto_analyze(con: sqlite3.Connection, sid: str, root: Path, out: Path, force
         # Validate all drafts against the COMPLETE transcript so message ids and
         # literal evidence quotes have one canonical reference source.
         check = subprocess.run(['node', str(script), 'check', str(trans_path), *map(str, draft_paths)],
-                               text=True, capture_output=True, timeout=120)
+                               text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=120)
         if check.returncode != 0:
             raise RuntimeError('Conversation Map check failed; refusing unchecked model output:\n' + (check.stdout + check.stderr)[-1300:])
         build = subprocess.run(['node', str(script), 'build', str(trans_path), *map(str, draft_paths),
                                 '--out-dir', str(result_dir), '--name', 'map'],
-                               text=True, capture_output=True, timeout=120)
+                               text=True, encoding="utf-8", errors="replace", capture_output=True, timeout=120)
         if build.returncode != 0:
             raise RuntimeError('Conversation Map build failed: ' + (build.stdout + build.stderr)[-1300:])
         map_data = result_dir / 'map.json'
