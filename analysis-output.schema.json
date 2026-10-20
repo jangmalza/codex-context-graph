@@ -1,0 +1,207 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "enum": [
+        "1"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "complete",
+            "partial"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "note"
+      ]
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "parent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "topic",
+              "item"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "classification": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "user_statement",
+              "assistant_statement",
+              "fact",
+              "suggestion",
+              "decision",
+              "rejected_proposal",
+              "superseded_decision",
+              "open_question",
+              "answered_question",
+              "action_item",
+              "completed_action",
+              "inference",
+              "unknown",
+              null
+            ]
+          },
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "rationale": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "due": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "supersededBy": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "quote": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "message",
+                "quote"
+              ]
+            }
+          }
+        },
+        "required": [
+          "key",
+          "parent",
+          "kind",
+          "title",
+          "summary",
+          "classification",
+          "detail",
+          "rationale",
+          "owner",
+          "due",
+          "supersededBy",
+          "evidence"
+        ]
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "supports",
+              "contradicts",
+              "supersedes",
+              "answers",
+              "implements",
+              "depends_on",
+              "related"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "type",
+          "note"
+        ]
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "title",
+    "coverage",
+    "nodes",
+    "relations",
+    "notes"
+  ]
+}
