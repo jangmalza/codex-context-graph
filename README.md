@@ -53,6 +53,28 @@ python .\context_graph.py import-map --session <SESSION_ID> --file .\local-data\
 python .\context_graph.py graph --html .\output\graph.html
 ```
 
+## Long-session analysis (automatic chunking)
+
+Sessions longer than 60,000 serialized characters are automatically split into sequential chunks before model analysis. You do **not** have to edit the session file, truncate the conversation, or raise the context limit.
+
+- Each part is sent to Codex separately, so long sessions incur multiple sequential model calls and can take longer.
+- Chunks preserve original message IDs. If one individual message exceeds the limit, it is divided into text fragments without losing characters.
+- All generated drafts are checked and built against the **full, original** transcript, retaining quote traceability.
+- To prevent accidental ID collisions, each chunk's analysis keys are namespaced before merging. Same-title topics can still be deduplicated by Conversation Map.
+- If any chunk or evidence validation fails, this run does **not** replace an existing stored graph. The next run retries the whole session.
+- Each chunk is interpreted independently; cross-chunk supersessions and semantic relationships may be missed. This is not yet a fully reconciled long-term memory graph.
+
+Example for a long session:
+
+```powershell
+python .\context_graph.py analyze `
+  --session "YOUR-SESSION-ID" `
+  --cm-root "$HOME\src\conversation-map" `
+  --allow-model
+```
+
+Progress output prints `chunk 1/N`, `chunk 2/N`, and so on. A 184,408-character transcript will generally require at least four chunks depending on message boundaries. The run still requires user opt-in to send the conversation to the configured Codex model.
+
 ## Continuous collection
 
 ```powershell
@@ -99,7 +121,7 @@ Codex rollout JSONL -> read-only scanner -> SQLite
 ## Limitations
 
 - Experimental local JSONL parsing; Codex may change its event schema.
-- Analysis is limited to 60,000 characters per session for now; longer sessions must be split manually.
+- Every model request is limited to roughly 60,000 serialized characters; longer sessions are split automatically. Cross-chunk conflict/decision reconciliation is not yet implemented.
 - No semantic entity resolution, inference of cross-session contradictions, or branch-specific canonical decisions.
 - No MCP server or automatic Windows background service yet.
 - Latest import per session replaces the previous map. Node titles must match exactly after normalization to merge.
