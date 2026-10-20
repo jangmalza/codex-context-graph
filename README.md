@@ -53,6 +53,19 @@ python .\context_graph.py import-map --session <SESSION_ID> --file .\local-data\
 python .\context_graph.py graph --html .\output\graph.html
 ```
 
+## Windows character encoding (CP949)
+
+If a long conversation contains Unicode characters that Windows' legacy CP949 code page cannot encode, older versions may fail with `'cp949' codec can't encode character` during `codex exec`. This version explicitly uses UTF-8 for all Codex and Node.js subprocess pipes (stdin/stdout/stderr). Upgrade to the latest `feat/context-graph-mvp` branch before retrying:
+
+```powershell
+git fetch origin
+git switch feat/context-graph-mvp
+git pull --ff-only origin feat/context-graph-mvp
+python -m unittest discover -s tests -v
+```
+
+For an **older checkout** that has not yet been updated, `python -X utf8 .\\context_graph.py analyze ...` is a temporary workaround. Changing the terminal code page with `chcp` alone is not a reliable fix for Python subprocess pipes.
+
 ## Long-session analysis (automatic chunking)
 
 Sessions longer than 60,000 serialized characters are automatically split into sequential chunks before model analysis. You do **not** have to edit the session file, truncate the conversation, or raise the context limit.
