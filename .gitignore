@@ -9,3 +9,6 @@ __pycache__/
 .env
 output/
 local-data/
+
+# Generated sensitive model-analysis drafts (never commit)
+analysis-cache/
