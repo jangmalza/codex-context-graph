@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+*.sqlite
+*.db
+*.db-wal
+*.db-shm
+*.jsonl
+.env
+output/
+local-data/
